@@ -1,9 +1,5 @@
 #include <M5Unified.h>
-#include <M5GFX.h>
-#include <HTTPClient.h>
 #include <WiFi.h>
-#include "client_interface.h"
-#include "display.h"
 #include "controller.h"
 #include "config.h"
 
