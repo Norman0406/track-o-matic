@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 
 using ProjectId = std::uint64_t;

@@ -1,11 +1,11 @@
 #include <M5Unified.h>
-#include <WiFi.h>
+#include "configuration.h"
+#include "wireless.h"
 #include "controller.h"
-#include "config.h"
 
+std::unique_ptr<Configuration> configuration;
+std::unique_ptr<Wireless> wireless;
 std::unique_ptr<Controller> controller;
-
-const char *ntpServer = "pool.ntp.org";
 
 void setup()
 {
@@ -16,19 +16,13 @@ void setup()
         delay(500);
 
         M5.begin();
-        WiFi.begin(wifiSSID.c_str(), wifiPassword.c_str());
 
-        log_i("Connecting to WiFi: %s", wifiSSID.c_str());
-        while (WiFi.status() != WL_CONNECTED)
-        {
-            delay(500);
-        }
-        log_i("WiFi connected, IP address: %s", WiFi.localIP().toString().c_str());
+        configuration = std::make_unique<Configuration>();
+        controller = std::make_unique<Controller>(*configuration);
 
-        // update time from NTP
-        configTime(0, 0, ntpServer);
-
-        controller = std::make_unique<Controller>();
+        wireless = std::make_unique<Wireless>(*configuration);
+        wireless->setIsConnectedHandler(std::bind(&Controller::setWifiConnected, controller.get(), std::placeholders::_1));
+        wireless->process();
     }
     catch (const std::exception &e)
     {
@@ -41,6 +35,7 @@ void loop()
     try
     {
         controller->update();
+        wireless->process();
     }
     catch (const std::exception &e)
     {

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include <exception>
 #include <ArduinoJson.h>
@@ -35,7 +36,6 @@ private:
 class ClientInterface
 {
 public:
-    ClientInterface() = default;
     virtual ~ClientInterface() = default;
 
     virtual JsonDocument getMe() const = 0;

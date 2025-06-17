@@ -199,7 +199,7 @@ void Display::setupStatusBar(lv_obj_t *parent)
     wifiStatus_ = lv_label_create(statusBar);
     lv_obj_align(wifiStatus_, LV_ALIGN_TOP_RIGHT, 0, 0);
     lv_label_set_text(wifiStatus_, LV_SYMBOL_WIFI);
-    setWifi(false);
+    setWifiConnected(false);
 
     // battery level icon
     batteryLevel_ = lv_label_create(statusBar);
@@ -444,16 +444,16 @@ void Display::setRefresh(bool active)
     }
 }
 
-void Display::setWifi(bool active)
+void Display::setWifiConnected(bool connected)
 {
-    if (active != wifiActive_)
+    if (connected != wifiConnected_)
     {
-        log_i("Setting WiFi active state to %s", active ? "true" : "false");
+        log_i("Setting WiFi active state to %s", connected ? "true" : "false");
 
-        wifiActive_ = active;
-        lv_obj_set_style_opa(wifiStatus_, active ? LV_OPA_100 : LV_OPA_20, 0);
+        wifiConnected_ = connected;
+        lv_obj_set_style_opa(wifiStatus_, connected ? LV_OPA_100 : LV_OPA_20, 0);
 
-        if (active)
+        if (connected)
         {
             setRefresh(true);
             refreshCallback_();

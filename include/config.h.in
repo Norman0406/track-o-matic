@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
-const std::string wifiSSID = "";
-const std::string wifiPassword = "";
+const std::string wifiSSID1 = "";
+const std::string wifiPassword1 = "";
+const std::string wifiSSID2 = "";
+const std::string wifiPassword2 = "";
 const std::string togglApiKey = "";

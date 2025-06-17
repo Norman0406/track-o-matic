@@ -1,4 +1,5 @@
 #pragma once
+
 #include "client_interface.h"
 
 class MockClient : public ClientInterface

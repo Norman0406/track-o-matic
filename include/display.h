@@ -1,4 +1,5 @@
 #pragma once
+
 #include <lvgl.h>
 #include <string>
 #include <functional>
@@ -36,7 +37,7 @@ public:
     void setUsername(std::string);
     void setProjects(const std::vector<Project> &projects);
     void setRefresh(bool active);
-    void setWifi(bool active);
+    void setWifiConnected(bool connected);
 
     void setActiveTimeEntry(TimeEntryId timeEntryId,
                             std::optional<ProjectId> projectId,
@@ -75,7 +76,7 @@ private:
     StopCallback stopCallback_;
     RefreshCallback refreshCallback_;
 
-    bool wifiActive_{true};    // Default to true so that the initial update can set it to false
+    bool wifiConnected_{true}; // Default to true so that the initial update can set it to false
     bool refreshActive_{true}; // Default to true so that the initial update can set it to false
     unsigned long lastTime_;
     lv_display_t *display_;

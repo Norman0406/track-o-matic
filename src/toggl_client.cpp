@@ -3,7 +3,6 @@
 #include <HTTPClient.h>
 #include <chrono>
 #include "utils.h"
-#include "config.h"
 
 namespace
 {
@@ -35,12 +34,12 @@ namespace
         }
     }
 
-    JsonDocument sendRequest(RequestType requestType, std::string url, JsonDocument payload)
+    JsonDocument sendRequest(const std::string &apiToken, RequestType requestType, std::string url, JsonDocument payload)
     {
         auto https = std::make_unique<HTTPClient>();
         https->useHTTP10(true);
         https->setUserAgent(userAgent.c_str());
-        https->setAuthorization(togglApiKey.c_str(), "api_token");
+        https->setAuthorization(apiToken.c_str(), "api_token");
         https->setAuthorizationType("Basic");
 
         WiFiClientSecure client;
@@ -85,44 +84,49 @@ namespace
         return jsonDocument;
     }
 
-    JsonDocument get(std::string url)
+    JsonDocument get(const std::string &apiToken, std::string url)
     {
-        return sendRequest(RequestType::GET, url, JsonDocument());
+        return sendRequest(apiToken, RequestType::GET, url, JsonDocument());
     }
 
-    JsonDocument patch(std::string url)
+    JsonDocument patch(const std::string &apiToken, std::string url)
     {
-        return sendRequest(RequestType::PATCH, url, JsonDocument());
+        return sendRequest(apiToken, RequestType::PATCH, url, JsonDocument());
     }
 
-    JsonDocument post(std::string url, JsonDocument payload = JsonDocument())
+    JsonDocument post(const std::string &apiToken, std::string url, JsonDocument payload = JsonDocument())
     {
-        return sendRequest(RequestType::POST, url, payload);
+        return sendRequest(apiToken, RequestType::POST, url, payload);
     }
+}
+
+TogglClient::TogglClient(std::string apiToken)
+    : apiToken_(std::move(apiToken))
+{
 }
 
 JsonDocument TogglClient::getMe() const
 {
     // https://engineering.toggl.com/docs/api/me/#response
-    return get("me");
+    return get(apiToken_, "me");
 }
 
 JsonDocument TogglClient::getProjects() const
 {
     // https://engineering.toggl.com/docs/api/me/#get-projects
-    return get("me/projects");
+    return get(apiToken_, "me/projects");
 }
 
 JsonDocument TogglClient::getWorkspaces() const
 {
     // https://engineering.toggl.com/docs/api/me/#get-workspaces
-    return get("me/workspaces");
+    return get(apiToken_, "me/workspaces");
 }
 
 JsonDocument TogglClient::listClients(WorkspaceId workspaceId) const
 {
     // https://engineering.toggl.com/docs/api/clients/#get-list-clients
-    return get("workspaces/" + std::to_string(workspaceId) + "/clients");
+    return get(apiToken_, "workspaces/" + std::to_string(workspaceId) + "/clients");
 }
 
 JsonDocument TogglClient::startTimeEntry(WorkspaceId workspaceId, std::optional<ProjectId> projectId)
@@ -140,17 +144,17 @@ JsonDocument TogglClient::startTimeEntry(WorkspaceId workspaceId, std::optional<
         payload["project_id"] = *projectId;
     }
 
-    return post("workspaces/" + std::to_string(workspaceId) + "/time_entries", payload);
+    return post(apiToken_, "workspaces/" + std::to_string(workspaceId) + "/time_entries", payload);
 }
 
 JsonDocument TogglClient::stopTimeEntry(WorkspaceId workspaceId, TimeEntryId timeEntryId)
 {
     // https://engineering.toggl.com/docs/api/time_entries/#patch-stop-timeentry
-    return patch("workspaces/" + std::to_string(workspaceId) + "/time_entries/" + std::to_string(timeEntryId) + "/stop");
+    return patch(apiToken_, "workspaces/" + std::to_string(workspaceId) + "/time_entries/" + std::to_string(timeEntryId) + "/stop");
 }
 
 JsonDocument TogglClient::getCurrentTimeEntry() const
 {
     // https://engineering.toggl.com/docs/api/time_entries/#get-get-current-time-entry
-    return get("me/time_entries/current");
+    return get(apiToken_, "me/time_entries/current");
 }

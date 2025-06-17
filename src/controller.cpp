@@ -9,7 +9,7 @@
 #include "toggl_client.h"
 #endif
 
-Controller::Controller()
+Controller::Controller(const Configuration &configuration)
 {
     display_ = std::make_unique<Display>();
     display_->setRefreshCallback(std::bind(&Controller::refresh, this));
@@ -19,15 +19,20 @@ Controller::Controller()
 #ifdef USE_MOCK_CLIENT
     client_ = std::make_unique<MockClient>();
 #else
-    client_ = std::make_unique<TogglClient>();
+    client_ = std::make_unique<TogglClient>(configuration.togglConfiguration().apiToken);
 #endif
+}
+
+void Controller::setWifiConnected(bool connected)
+{
+    configTime(0, 0, ntpServer_.c_str());
+    display_->setWifiConnected(connected);
 }
 
 void Controller::update()
 {
     try
     {
-        display_->setWifi(WiFi.status() == WL_CONNECTED);
         display_->update();
     }
     catch (const std::exception &e)
